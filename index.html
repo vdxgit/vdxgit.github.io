@@ -261,20 +261,20 @@
                 <span id="date">Wednesday, Feb 4</span>
                 <span id="day">Day H</span>
             </div>
-            <div class="time" id="time">08:38</div>
-            <div class="period" id="period">Period 1</div>
-            <div class="period-len" id="periodLen">58 min lesson</div>
+            <div class="time" id="time">10:09</div>
+            <div class="period" id="period">Period 2</div>
+            <div class="period-len" id="periodLen">55 min lesson</div>
         </div>
         
         <div class="progress" id="prog">
             <div class="bar">
-                <div class="fill" id="fill" style="width: 10.3448%;"></div>
+                <div class="fill" id="fill" style="width: 61.8182%;"></div>
                 <div class="marker" id="marker" style="display: block; left: calc(91.3793% - 1.5px);"></div>
             </div>
             <div class="labels">
-                <span id="pStart">08:32</span>
-                <span class="mid" id="pLeft">Change in 47 min • 52 left</span>
-                <span id="pEnd">09:30</span>
+                <span id="pStart">09:35</span>
+                <span class="mid" id="pLeft">Change in 16 min • 21 left</span>
+                <span id="pEnd">10:30</span>
             </div>
         </div>
         
@@ -287,7 +287,7 @@
             </div>
         </div>
         
-        <div class="sched" id="sched"><div class="sched-item now" data-idx="0"><span class="name">Period 1</span><span class="len">58 min</span><span>08:32 – 09:30</span></div><div class="sched-item" data-idx="1"><span class="name">Period 2</span><span class="len">55 min</span><span>09:35 – 10:30</span></div><div class="sched-item" data-idx="2"><span class="name">Break</span><span class="len">20 min</span><span>10:30 – 10:50</span></div><div class="sched-item" data-idx="3"><span class="name">Period 3</span><span class="len">50 min</span><span>10:50 – 11:40</span></div><div class="sched-item" data-idx="4"><span class="name">Period 4a</span><span class="len">45 min</span><span>11:45 – 12:30</span></div><div class="sched-item" data-idx="5"><span class="name">Lunch</span><span class="len">50 min</span><span>12:30 – 13:20</span></div><div class="sched-item" data-idx="6"><span class="name">Period 5</span><span class="len">50 min</span><span>13:25 – 14:15</span></div><div class="sched-item" data-idx="7"><span class="name">Period 6</span><span class="len">50 min</span><span>14:20 – 15:10</span></div></div>
+        <div class="sched" id="sched"><div class="sched-item done" data-idx="0"><span class="name">Period 1</span><span class="len">58 min</span><span>08:32 – 09:30</span></div><div class="sched-item now" data-idx="1"><span class="name">Period 2</span><span class="len">55 min</span><span>09:35 – 10:30</span></div><div class="sched-item" data-idx="2"><span class="name">Break</span><span class="len">20 min</span><span>10:30 – 10:50</span></div><div class="sched-item" data-idx="3"><span class="name">Period 3</span><span class="len">50 min</span><span>10:50 – 11:40</span></div><div class="sched-item" data-idx="4"><span class="name">Period 4a</span><span class="len">45 min</span><span>11:45 – 12:30</span></div><div class="sched-item" data-idx="5"><span class="name">Lunch</span><span class="len">50 min</span><span>12:30 – 13:20</span></div><div class="sched-item" data-idx="6"><span class="name">Period 5</span><span class="len">50 min</span><span>13:25 – 14:15</span></div><div class="sched-item" data-idx="7"><span class="name">Period 6</span><span class="len">50 min</span><span>14:20 – 15:10</span></div></div>
     </div>
 
     <script>
@@ -346,15 +346,15 @@
                 const s = tm(p[0], p[1]);
                 const e = tm(p[2], p[3]);
                 const left = e - cur;
-                const chg = left - 5;
                 const pct = Math.max(0, Math.min(100, ((cur - s) / dur) * 100));
                 
                 $('fill').style.width = pct + '%';
                 $('fill').classList.remove('warn', 'danger');
                 if (left <= 5) $('fill').classList.add('danger');
-                else if (chg <= 5) $('fill').classList.add('warn');
+
                 
-                $('pLeft').textContent = nw ? `${left} min left`;
+                $('pLeft').textContent = `${left} min left`;
+                $('wIn').textContent = nw ? '' : (chg <= 0 ? 'NOW!' : `in ${chg} min`);
                 $('eIn').textContent = `in ${left} min`;
             } else {
                 // Preview - show full bar outline, no fill
