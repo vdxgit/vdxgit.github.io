@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<!-- saved from url=(0058)file:///Users/school/Downloads/FISschedule-main/index.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#874B46">
+    <title>FIS Timer</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --burgundy: #874B46;
+            --black: #231F20;
+            --white: #ffffff;
+            --gray: #f5f5f5;
+            --gray2: #e0e0e0;
+            --warn: #d4a029;
+            --danger: #c0392b;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--gray);
+            color: var(--black);
+            height: 100vh;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            padding: 12px;
+            overflow: hidden;
+        }
+        
+        .container {
+            max-width: 400px;
+            width: 100%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            height: 100%;
+        }
+        
+        .toggle {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+        
+        .toggle button {
+            background: var(--white);
+            border: 2px solid var(--gray2);
+            color: #888;
+            padding: 5px 16px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .toggle button.on {
+            background: var(--burgundy);
+            border-color: var(--burgundy);
+            color: var(--white);
+        }
+        
+        .header {
+            background: var(--burgundy);
+            color: var(--white);
+            padding: 16px;
+            border-radius: 14px;
+            text-align: center;
+            cursor: pointer;
+        }
+        
+        .header.preview {
+            background: #5a3533;
+        }
+        
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+        
+        .preview-label {
+            display: none;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.7;
+            margin-bottom: 4px;
+        }
+        
+        .header.preview .preview-label { display: block; }
+        
+        .time {
+            font-size: 3.5rem;
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -2px;
+            line-height: 1.1;
+        }
+        
+        .period {
+            font-size: 1.1rem;
+            margin-top: 4px;
+            opacity: 0.95;
+        }
+        
+        .period-len {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-top: 2px;
+        }
+        
+        .progress {
+            background: var(--white);
+            border-radius: 14px;
+            padding: 12px 14px;
+        }
+        
+        .bar {
+            height: 24px;
+            background: var(--gray);
+            border-radius: 12px;
+            position: relative;
+        }
+        
+        .fill {
+            height: 100%;
+            background: var(--burgundy);
+            border-radius: 12px;
+            position: absolute;
+            left: 0;
+            transition: width 0.5s;
+        }
+        
+        .fill.warn { background: var(--warn); }
+        .fill.danger { background: var(--danger); }
+        
+        .marker {
+            position: absolute;
+            top: 5px;
+            bottom: 5px;
+            width: 3px;
+            background: var(--black);
+            border-radius: 2px;
+            opacity: 0.25;
+        }
+        
+        .labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 6px;
+            font-size: 0.8rem;
+            color: #888;
+        }
+        
+        .labels .mid {
+            font-weight: 700;
+            color: var(--black);
+        }
+        
+        .boxes {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .box {
+            flex: 1;
+            background: var(--white);
+            border-radius: 12px;
+            padding: 12px 8px;
+            text-align: center;
+            border: 2px solid var(--gray2);
+        }
+        
+        .box.warn { border-color: var(--warn); }
+        .box.danger { border-color: var(--danger); }
+        
+        .box-label {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #999;
+        }
+        
+        .box-time {
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+        }
+        
+        .box.warn .box-time { color: var(--warn); }
+        .box.danger .box-time { color: var(--danger); }
+        
+        .box-sub {
+            font-size: 0.65rem;
+            color: #999;
+        }
+        
+        .sched {
+            background: var(--white);
+            border-radius: 14px;
+            padding: 10px 14px;
+            flex: 1;
+            overflow-y: auto;
+            min-height: 0;
+        }
+        
+        .sched-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            font-size: 0.8rem;
+            border-bottom: 1px solid var(--gray);
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        
+        .sched-item:hover {
+            background: var(--gray);
+            margin: 0 -14px;
+            padding-left: 14px;
+            padding-right: 14px;
+        }
+        
+        .sched-item:last-child { border-bottom: none; }
+        .sched-item.now { color: var(--burgundy); font-weight: 600; }
+        .sched-item.done { color: #ccc; }
+        
+        .sched-item .name { flex: 1; }
+        .sched-item .len { 
+            font-size: 0.7rem; 
+            color: #999; 
+            margin: 0 10px;
+            background: var(--gray);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        .sched-item.now .len { background: rgba(135,75,70,0.15); color: var(--burgundy); }
+        .sched-item.done .len { background: #f5f5f5; color: #ccc; }
+        .sched-item.selected { background: rgba(135,75,70,0.1); margin: 0 -14px; padding-left: 14px; padding-right: 14px; }
+        
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="toggle">
+            <button class="on" data-g="6-8">Grade 6-8</button>
+            <button data-g="9-12">Grade 9-12</button>
+        </div>
+        
+        <div class="header" id="header">
+            <div class="preview-label">▲ Tap to return to live</div>
+            <div class="header-top">
+                <span id="date">Wednesday, Feb 4</span>
+                <span id="day">Day H</span>
+            </div>
+            <div class="time" id="time">08:38</div>
+            <div class="period" id="period">Period 1</div>
+            <div class="period-len" id="periodLen">58 min lesson</div>
+        </div>
+        
+        <div class="progress" id="prog">
+            <div class="bar">
+                <div class="fill" id="fill" style="width: 10.3448%;"></div>
+                <div class="marker" id="marker" style="display: block; left: calc(91.3793% - 1.5px);"></div>
+            </div>
+            <div class="labels">
+                <span id="pStart">08:32</span>
+                <span class="mid" id="pLeft">Change in 47 min • 52 left</span>
+                <span id="pEnd">09:30</span>
+            </div>
+        </div>
+        
+        <div class="boxes" id="boxes">
+            
+            <div class="box danger">
+                <div class="box-label">Period Ends</div>
+                <div class="box-time" id="eTime">09:30</div>
+                <div class="box-sub" id="eIn">in 52 min</div>
+            </div>
+        </div>
+        
+        <div class="sched" id="sched"><div class="sched-item now" data-idx="0"><span class="name">Period 1</span><span class="len">58 min</span><span>08:32 – 09:30</span></div><div class="sched-item" data-idx="1"><span class="name">Period 2</span><span class="len">55 min</span><span>09:35 – 10:30</span></div><div class="sched-item" data-idx="2"><span class="name">Break</span><span class="len">20 min</span><span>10:30 – 10:50</span></div><div class="sched-item" data-idx="3"><span class="name">Period 3</span><span class="len">50 min</span><span>10:50 – 11:40</span></div><div class="sched-item" data-idx="4"><span class="name">Period 4a</span><span class="len">45 min</span><span>11:45 – 12:30</span></div><div class="sched-item" data-idx="5"><span class="name">Lunch</span><span class="len">50 min</span><span>12:30 – 13:20</span></div><div class="sched-item" data-idx="6"><span class="name">Period 5</span><span class="len">50 min</span><span>13:25 – 14:15</span></div><div class="sched-item" data-idx="7"><span class="name">Period 6</span><span class="len">50 min</span><span>14:20 – 15:10</span></div></div>
+    </div>
+
+    <script>
+        const LD={'2025-08-14':'A','2025-08-15':'B','2025-08-18':'C','2025-08-19':'D','2025-08-20':'E','2025-08-21':'F','2025-08-22':'G','2025-08-25':'H','2025-08-26':'A','2025-08-27':'B','2025-08-28':'C','2025-08-29':'D','2025-09-01':'E','2025-09-02':'F','2025-09-03':'G','2025-09-04':'H','2025-09-05':'A','2025-09-08':'B','2025-09-09':'C','2025-09-10':'D','2025-09-11':'E','2025-09-12':'F','2025-09-15':'G','2025-09-16':'H','2025-09-17':'A','2025-09-18':'B','2025-09-19':'C','2025-09-22':'D','2025-09-23':'E','2025-09-24':'F','2025-09-25':'G','2025-09-26':'H','2025-10-13':'A','2025-10-14':'B','2025-10-15':'C','2025-10-16':'D','2025-10-17':'E','2025-10-20':'F','2025-10-21':'G','2025-10-22':'H','2025-10-23':'A','2025-10-24':'B','2025-10-27':'C','2025-10-28':'D','2025-10-29':'E','2025-10-30':'F','2025-10-31':'G','2025-11-03':'H','2025-11-04':'A','2025-11-05':'B','2025-11-06':'C','2025-11-07':'D','2025-11-10':'E','2025-11-11':'F','2025-11-12':'G','2025-11-13':'H','2025-11-14':'A','2025-11-17':'B','2025-11-18':'C','2025-11-19':'D','2025-11-20':'E','2025-11-21':'F','2025-11-24':'G','2025-11-25':'H','2025-12-01':'A','2025-12-02':'B','2025-12-03':'C','2025-12-04':'D','2025-12-05':'E','2025-12-08':'F','2025-12-09':'G','2025-12-10':'H','2025-12-11':'A','2025-12-12':'B','2025-12-15':'C','2025-12-16':'D','2025-12-17':'E','2025-12-18':'F','2025-12-19':'G','2026-01-12':'H','2026-01-13':'A','2026-01-14':'B','2026-01-15':'C','2026-01-16':'D','2026-01-19':'E','2026-01-20':'F','2026-01-21':'G','2026-01-22':'H','2026-01-26':'A','2026-01-27':'B','2026-01-28':'C','2026-01-29':'D','2026-01-30':'E','2026-02-02':'F','2026-02-03':'G','2026-02-04':'H','2026-02-05':'A','2026-02-06':'B','2026-02-09':'C','2026-02-10':'D','2026-02-11':'E','2026-02-12':'F','2026-02-13':'G','2026-02-23':'H','2026-02-24':'A','2026-02-25':'B','2026-02-26':'C','2026-02-27':'D','2026-03-02':'E','2026-03-03':'F','2026-03-04':'G','2026-03-05':'H','2026-03-06':'A','2026-03-09':'B','2026-03-10':'C','2026-03-11':'D','2026-03-12':'E','2026-03-13':'F','2026-03-16':'G','2026-03-17':'H','2026-03-18':'A','2026-03-19':'B','2026-03-20':'C','2026-03-23':'D','2026-03-24':'E','2026-03-25':'F','2026-03-26':'G','2026-03-27':'H','2026-04-13':'A','2026-04-14':'B','2026-04-15':'C','2026-04-16':'D','2026-04-17':'E','2026-04-20':'F','2026-04-21':'G','2026-04-22':'H','2026-04-23':'A','2026-04-24':'B','2026-04-27':'C','2026-04-28':'D','2026-04-29':'E','2026-04-30':'F','2026-05-04':'G','2026-05-05':'H','2026-05-06':'A','2026-05-07':'B','2026-05-08':'C','2026-05-11':'D','2026-05-12':'E','2026-05-13':'F','2026-05-18':'G','2026-05-19':'H','2026-05-20':'A','2026-05-21':'B','2026-05-22':'C','2026-05-26':'D','2026-05-27':'E','2026-05-28':'F','2026-05-29':'G','2026-06-01':'H','2026-06-02':'A','2026-06-03':'B','2026-06-04':'C','2026-06-05':'D','2026-06-08':'E','2026-06-09':'F','2026-06-10':'G','2026-06-11':'H','2026-06-12':'A'};
+
+        const S={
+            '6-8':{
+                mon:[[8,32,8,42,'Advisory',1],[8,45,9,35,'Period 1'],[9,40,10,30,'Period 2'],[10,30,10,50,'Break',1],[10,50,11,40,'Period 3'],[11,45,12,30,'Period 4a'],[12,30,13,20,'Lunch',1],[13,25,14,15,'Period 5'],[14,20,15,10,'Period 6']],
+                tt:[[8,32,9,20,'Period 1'],[9,25,10,10,'Period 2'],[10,15,10,45,'Advisory',1],[10,45,11,5,'Break',1],[11,5,11,50,'Period 3'],[11,55,12,40,'Period 4a'],[12,40,13,25,'Lunch',1],[13,25,14,15,'Period 5'],[14,20,15,10,'Period 6']],
+                wf:[[8,32,9,30,'Period 1'],[9,35,10,30,'Period 2'],[10,30,10,50,'Break',1],[10,50,11,40,'Period 3'],[11,45,12,30,'Period 4a'],[12,30,13,20,'Lunch',1],[13,25,14,15,'Period 5'],[14,20,15,10,'Period 6']]
+            },
+            '9-12':{
+                mon:[[8,32,8,42,'Advisory',1],[8,45,9,35,'Period 1'],[9,40,10,30,'Period 2'],[10,30,10,50,'Break',1],[10,50,11,40,'Period 3'],[11,40,12,30,'Lunch',1],[12,30,13,20,'Period 4b'],[13,25,14,15,'Period 5'],[14,20,15,10,'Period 6']],
+                tt:[[8,32,9,20,'Period 1'],[9,25,10,10,'Period 2'],[10,15,10,45,'Advisory',1],[10,45,11,5,'Break',1],[11,5,11,50,'Period 3'],[11,50,12,35,'Lunch',1],[12,35,13,20,'Period 4b'],[13,25,14,15,'Period 5'],[14,20,15,10,'Period 6']],
+                wf:[[8,32,9,30,'Period 1'],[9,35,10,30,'Period 2'],[10,30,10,50,'Break',1],[10,50,11,40,'Period 3'],[11,40,12,30,'Lunch',1],[12,30,13,20,'Period 4b'],[13,25,14,15,'Period 5'],[14,20,15,10,'Period 6']]
+            }
+        };
+
+        let g = localStorage.getItem('fg') || '6-8';
+        let previewPeriod = null; // When set, shows this period instead of live
+        let currentSchedule = [];
+        
+        const $ = id => document.getElementById(id);
+        const f = (h,m) => `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+        const tm = (h,m) => h*60 + m;
+
+        function dt(d) {
+            const x = d.getDay();
+            return x===1 ? 'mon' : (x===2||x===4) ? 'tt' : (x===3||x===5) ? 'wf' : null;
+        }
+        
+        function showPeriod(p, isLive) {
+            const dur = tm(p[2],p[3]) - tm(p[0],p[1]);
+            const nw = p[5];
+            
+            $('header').classList.toggle('preview', !isLive);
+            
+            if (isLive) {
+                // Live mode - show current time
+                const now = new Date();
+                $('time').textContent = f(now.getHours(), now.getMinutes());
+            } else {
+                // Preview mode - show period times
+                $('time').textContent = f(p[0], p[1]);
+            }
+            
+            $('period').textContent = p[4];
+            $('periodLen').textContent = `${dur} min lesson`;
+            
+            $('pStart').textContent = f(p[0], p[1]);
+            $('pEnd').textContent = f(p[2], p[3]);
+            
+            if (isLive) {
+                const now = new Date();
+                const cur = tm(now.getHours(), now.getMinutes());
+                const s = tm(p[0], p[1]);
+                const e = tm(p[2], p[3]);
+                const left = e - cur;
+                const chg = left - 5;
+                const pct = Math.max(0, Math.min(100, ((cur - s) / dur) * 100));
+                
+                $('fill').style.width = pct + '%';
+                $('fill').classList.remove('warn', 'danger');
+                if (left <= 5) $('fill').classList.add('danger');
+                else if (chg <= 5) $('fill').classList.add('warn');
+                
+                $('pLeft').textContent = nw ? `${left} min left` : `Change in ${chg} min • ${left} left`;
+                $('wIn').textContent = nw ? '' : (chg <= 0 ? 'NOW!' : `in ${chg} min`);
+                $('eIn').textContent = `in ${left} min`;
+            } else {
+                // Preview - show full bar outline, no fill
+                $('fill').style.width = '0%';
+                $('fill').classList.remove('warn', 'danger');
+                $('pLeft').textContent = `${dur} min lesson`;
+                $('wIn').textContent = '';
+                $('eIn').textContent = '';
+            }
+            
+            $('marker').style.display = nw ? 'none' : 'block';
+            $('marker').style.left = `calc(${((dur - 5) / dur) * 100}% - 1.5px)`;
+            
+            $('wTime').textContent = nw ? '--:--' : f(p[2], p[3] - 5);
+            $('eTime').textContent = f(p[2], p[3]);
+            
+            $('prog').classList.remove('hidden');
+            $('boxes').classList.remove('hidden');
+        }
+
+        function upd() {
+            const now = new Date();
+            const ds = now.toISOString().split('T')[0];
+            const ld = LD[ds];
+            const dy = dt(now);
+            const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+            const mos = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            
+            $('date').textContent = `${days[now.getDay()]}, ${mos[now.getMonth()]} ${now.getDate()}`;
+            
+            // Always update clock if in live mode
+            if (!previewPeriod) {
+                $('time').textContent = f(now.getHours(), now.getMinutes());
+            }
+            
+            if (!ld || !dy) {
+                $('day').textContent = '';
+                $('period').textContent = 'No School';
+                $('periodLen').textContent = '';
+                $('prog').classList.add('hidden');
+                $('boxes').classList.add('hidden');
+                $('sched').innerHTML = '<div style="text-align:center;padding:30px;color:#888">No classes today</div>';
+                return;
+            }
+            
+            $('day').textContent = `Day ${ld}`;
+            const sc = S[g][dy];
+            currentSchedule = sc;
+            const cur = tm(now.getHours(), now.getMinutes());
+            
+            // Find current period
+            let livePeriod = null;
+            let liveStatus = 'after';
+            let liveIdx = -1;
+            
+            for (let i = 0; i < sc.length; i++) {
+                const x = sc[i];
+                const s = tm(x[0], x[1]);
+                const e = tm(x[2], x[3]);
+                if (cur >= s && cur < e) { livePeriod = x; liveStatus = 'during'; liveIdx = i; break; }
+                if (cur < s) { livePeriod = x; liveStatus = 'before'; liveIdx = i; break; }
+            }
+            
+            // Build schedule list
+            $('sched').innerHTML = sc.map((x, i) => {
+                const s = tm(x[0], x[1]);
+                const e = tm(x[2], x[3]);
+                const dur = e - s;
+                let c = 'sched-item';
+                if (liveStatus === 'during' && livePeriod === x) c += ' now';
+                else if (e <= cur) c += ' done';
+                if (previewPeriod === x) c += ' selected';
+                return `<div class="${c}" data-idx="${i}"><span class="name">${x[4]}</span><span class="len">${dur} min</span><span>${f(x[0],x[1])} – ${f(x[2],x[3])}</span></div>`;
+            }).join('');
+            
+            // Add click handlers to schedule items
+            document.querySelectorAll('.sched-item').forEach(el => {
+                el.addEventListener('click', () => {
+                    const idx = parseInt(el.dataset.idx);
+                    const clickedPeriod = currentSchedule[idx];
+                    
+                    // If clicking the current live period, go back to live
+                    if (clickedPeriod === livePeriod && liveStatus === 'during') {
+                        previewPeriod = null;
+                    } else {
+                        previewPeriod = clickedPeriod;
+                    }
+                    upd();
+                });
+            });
+            
+            // Display logic
+            if (liveStatus === 'after' && !previewPeriod) {
+                $('header').classList.remove('preview');
+                $('period').textContent = 'Day Complete';
+                $('periodLen').textContent = '';
+                $('prog').classList.add('hidden');
+                $('boxes').classList.add('hidden');
+                return;
+            }
+            
+            if (previewPeriod) {
+                showPeriod(previewPeriod, false);
+            } else if (liveStatus === 'during') {
+                showPeriod(livePeriod, true);
+            } else if (liveStatus === 'before') {
+                // Before school starts
+                $('header').classList.remove('preview');
+                $('period').textContent = `Next: ${livePeriod[4]}`;
+                const dur = tm(livePeriod[2], livePeriod[3]) - tm(livePeriod[0], livePeriod[1]);
+                $('periodLen').textContent = `${dur} min lesson`;
+                const s = tm(livePeriod[0], livePeriod[1]);
+                const nw = livePeriod[5];
+                
+                $('fill').style.width = '0%';
+                $('marker').style.display = nw ? 'none' : 'block';
+                $('marker').style.left = `calc(${((dur - 5) / dur) * 100}% - 1.5px)`;
+                $('pStart').textContent = f(livePeriod[0], livePeriod[1]);
+                $('pEnd').textContent = f(livePeriod[2], livePeriod[3]);
+                $('pLeft').textContent = `starts in ${s - cur} min`;
+                $('wTime').textContent = nw ? '--:--' : f(livePeriod[2], livePeriod[3] - 5);
+                $('wIn').textContent = '';
+                $('eTime').textContent = f(livePeriod[2], livePeriod[3]);
+                $('eIn').textContent = `in ${s - cur} min`;
+                $('prog').classList.remove('hidden');
+                $('boxes').classList.remove('hidden');
+            }
+        }
+
+        // Click header to return to live
+        $('header').addEventListener('click', () => {
+            if (previewPeriod) {
+                previewPeriod = null;
+                upd();
+            }
+        });
+
+        document.querySelectorAll('.toggle button').forEach(b => {
+            b.addEventListener('click', () => {
+                document.querySelectorAll('.toggle button').forEach(x => x.classList.remove('on'));
+                b.classList.add('on');
+                g = b.dataset.g;
+                localStorage.setItem('fg', g);
+                previewPeriod = null;
+                upd();
+            });
+            b.classList.toggle('on', b.dataset.g === g);
+        });
+
+        upd();
+        setInterval(upd, 1000);
+    </script>
+
+
+</body></html>
