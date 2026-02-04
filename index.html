@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- saved from url=(0058)file:///Users/school/Downloads/FISschedule-main/index.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -355,7 +354,7 @@
                 if (left <= 5) $('fill').classList.add('danger');
                 else if (chg <= 5) $('fill').classList.add('warn');
                 
-                $('pLeft').textContent = nw ? `${left} min left` : `Change in ${chg} min • ${left} left`;
+                $('pLeft').textContent = nw ? `${left} min left`;
                 $('wIn').textContent = nw ? '' : (chg <= 0 ? 'NOW!' : `in ${chg} min`);
                 $('eIn').textContent = `in ${left} min`;
             } else {
