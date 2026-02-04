@@ -355,7 +355,6 @@
                 else if (chg <= 5) $('fill').classList.add('warn');
                 
                 $('pLeft').textContent = nw ? `${left} min left`;
-                $('wIn').textContent = nw ? '' : (chg <= 0 ? 'NOW!' : `in ${chg} min`);
                 $('eIn').textContent = `in ${left} min`;
             } else {
                 // Preview - show full bar outline, no fill
